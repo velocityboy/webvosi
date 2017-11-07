@@ -1,0 +1,27 @@
+{
+  "name": "webvosi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src/ -d out/; webpack --config webpack.config.js"
+  },
+  "repository": "https://github.com/velocityboy/webvosi.git",
+  "author": "velocityboy@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.58.0",
+    "webpack": "^3.8.1"
+  },
+  "dependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
+  }
+}

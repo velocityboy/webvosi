@@ -1,0 +1,11 @@
+[ignore]
+package.json
+
+[include]
+src/*.js
+
+[libs]
+
+[lints]
+
+[options]
