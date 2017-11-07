@@ -11,7 +11,6 @@ export class Flags {
   static ALWAYS = 0x20;
   static V = 0x40;
   static N = 0x80;
-
 }
 
 export default class CPU {
@@ -40,6 +39,7 @@ export default class CPU {
     }
 
     this._dispatch[0x00] = this._brk.bind(this);
+    this._dispatch[0x09] = () => this._ora(this._immediate());
 
     this.reset();
   }
@@ -97,6 +97,27 @@ export default class CPU {
 
   _invalidInstruction(): void {
     this._halted = true;
+  }
+
+  _ora(m: number): void {
+    this.a |= m;
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+    this._cycles += 2;
+  }
+
+  _immediate(): number {
+    const data = this._memory.readByte(this.ip);
+    this.ip = CPU._inc16(this.ip);
+    return data;
+  }
+
+  _setClear(flag: number, set: boolean) {
+    if (set) {
+      this.flags |= flag;
+    } else {
+      this.flags &= ~flag;
+    }
   }
 
   _readWord(address: number): number {
