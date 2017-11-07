@@ -19,4 +19,14 @@ describe('CPU', function() {
     assert.equal(this.cpu.y, 0x00);
     assert.equal(this.cpu.ip, 0x1234);
   })
+
+  it ('should halt on invalid instruction', function () {
+    this.cpu.ip = 0x1000;
+    // 0x02 is invalid opcode
+    this.memory.writeByte(0x1000, 0x02);
+
+    assert.equal(this.cpu.isHalted(), false);
+    this.cpu.step();
+    assert.equal(this.cpu.isHalted(), true);
+  })
 })
