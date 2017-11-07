@@ -7,6 +7,7 @@ export class Flags {
   static Z = 0x02;
   static DI = 0x04;
   static D = 0x08;
+  static B = 0x10;
   static ALWAYS = 0x20;
   static V = 0x40;
   static N = 0x80;
@@ -15,6 +16,8 @@ export class Flags {
 
 export default class CPU {
   static RESET = 0xFFFC;
+  static BRK = 0xFFFE;
+  static STACK_BASE = 0x0100;
 
   _memory: Memory;
   _cycles: number;
@@ -35,6 +38,8 @@ export default class CPU {
     while (this._dispatch.length < 256) {
       this._dispatch.push(this._invalidInstruction.bind(this));
     }
+
+    this._dispatch[0x00] = this._brk.bind(this);
 
     this.reset();
   }
@@ -62,6 +67,32 @@ export default class CPU {
 
   isHalted(): boolean {
     return this._halted;
+  }
+
+  cycles(): number {
+    return this._cycles;
+  }
+
+  _brk(): void {
+    const ret = CPU._inc16(this.ip);
+    const vector = this._readWord(CPU.BRK);
+
+    if (this.sp <= 2) {
+      this._halted = true;
+      return;
+    }
+
+    this._memory.writeByte(this.sp | CPU.STACK_BASE, (ret >> 8) & 0xFF);
+    this.sp -= 1;
+    this._memory.writeByte(this.sp | CPU.STACK_BASE, ret & 0xFF);
+    this.sp -= 1;
+    this._memory.writeByte(this.sp | CPU.STACK_BASE, this.flags | Flags.B);
+    this.sp -= 1;
+
+    this.flags |= Flags.DI;
+
+    this.ip = vector;
+    this._cycles += 7;
   }
 
   _invalidInstruction(): void {
