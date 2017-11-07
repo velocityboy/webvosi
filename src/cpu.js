@@ -110,7 +110,8 @@ export default class CPU {
     this._halted = true;
   }
 
-  _ora(m: number, cycles: number): void {
+  _ora(addr: number, cycles: number): void {
+    const m = this._memory.readByte(addr);
     this.a |= m;
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
@@ -118,53 +119,53 @@ export default class CPU {
   }
 
   _immediate(): number {
-    const data = this._memory.readByte(this.ip);
+    const addr = this.ip;
     this.ip = CPU._inc16(this.ip);
-    return data;
+    return addr;
   }
 
   _zeroPage(): number {
     const addr = this._memory.readByte(this.ip);
     this.ip = CPU._inc16(this.ip);
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _zeroPageX(): number {
     const addr = (this._memory.readByte(this.ip) + this.x) & 0xFF;
     this.ip = CPU._inc16(this.ip);
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _absolute(): number {
     const addr = this._readWord(this.ip);
     this.ip = CPU._inc16(this.ip, 2);
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _absoluteX(): number {
     const addr = (this._readWord(this.ip) + this.x) & 0xFFFF;
     this.ip = CPU._inc16(this.ip, 2);
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _absoluteY(): number {
     const addr = (this._readWord(this.ip) + this.y) & 0xFFFF;
     this.ip = CPU._inc16(this.ip, 2);
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _indirectX(): number  {
     const zpaddr = (this._memory.readByte(this.ip) + this.x) & 0xFF;
     this.ip = CPU._inc16(this.ip);
     const addr = this._readWord(zpaddr);
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _indirectY(): number  {
     const zpaddr = this._memory.readByte(this.ip);
     this.ip = CPU._inc16(this.ip);
     const addr = (this._readWord(zpaddr) + this.y) & 0xFFFF;
-    return this._memory.readByte(addr);
+    return addr;
   }
 
   _setClear(flag: number, set: boolean) {
