@@ -1,12 +1,6 @@
 var assert = require('assert');
 var Memory = require('../out/Memory').default;
 
-var memory;
-
-beforeEach(function() {
-  this.memory = new Memory();
-})
-
 describe('Memory', function() {
   describe('#readByte', function() {
     it('should read back uninitialized memory as zero', function() {

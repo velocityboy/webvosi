@@ -1,10 +1,11 @@
 // @flow
 
 export default class Memory {
+  static MEMORY_SIZE = 0x10000;
   _memory: Uint8Array;
 
   constructor() {
-    this._memory = new Uint8Array(0x10000);
+    this._memory = new Uint8Array(Memory.MEMORY_SIZE);
   }
 
   initializeRegion(data: Uint8Array, address: number): void {
