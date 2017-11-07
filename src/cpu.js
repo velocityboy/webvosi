@@ -39,10 +39,18 @@ export default class CPU {
     }
 
     this._dispatch[0x00] = this._brk.bind(this);
+    this._dispatch[0x01] = () => this._ora(this._indirectX(), 6);
     this._dispatch[0x05] = () => this._ora(this._zeroPage(), 3);
     this._dispatch[0x09] = () => this._ora(this._immediate(), 2);
     this._dispatch[0x0D] = () => this._ora(this._absolute(), 4);
+    this._dispatch[0x11] = () => this._ora(this._indirectY(), 5);
     this._dispatch[0x15] = () => this._ora(this._zeroPageX(), 4);
+
+    // $TODO what does '+1 if page crossed' mean on a one byte operand?
+    this._dispatch[0x19] = () => this._ora(this._absoluteY(), 4);
+    this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
+
+
 
     this.reset();
   }
@@ -122,18 +130,40 @@ export default class CPU {
   }
 
   _zeroPageX(): number {
-    let addr = this._memory.readByte(this.ip);
+    const addr = (this._memory.readByte(this.ip) + this.x) & 0xFF;
     this.ip = CPU._inc16(this.ip);
-    addr = (addr + this.x) & 0xFF;
     return this._memory.readByte(addr);
   }
 
   _absolute(): number {
-    const addrLow = this._memory.readByte(this.ip);
+    const addr = this._readWord(this.ip);
+    this.ip = CPU._inc16(this.ip, 2);
+    return this._memory.readByte(addr);
+  }
+
+  _absoluteX(): number {
+    const addr = (this._readWord(this.ip) + this.x) & 0xFFFF;
+    this.ip = CPU._inc16(this.ip, 2);
+    return this._memory.readByte(addr);
+  }
+
+  _absoluteY(): number {
+    const addr = (this._readWord(this.ip) + this.y) & 0xFFFF;
+    this.ip = CPU._inc16(this.ip, 2);
+    return this._memory.readByte(addr);
+  }
+
+  _indirectX(): number  {
+    const zpaddr = (this._memory.readByte(this.ip) + this.x) & 0xFF;
     this.ip = CPU._inc16(this.ip);
-    const addrHigh = this._memory.readByte(this.ip);
+    const addr = this._readWord(zpaddr);
+    return this._memory.readByte(addr);
+  }
+
+  _indirectY(): number  {
+    const zpaddr = this._memory.readByte(this.ip);
     this.ip = CPU._inc16(this.ip);
-    const addr = (addrHigh << 8) | addrLow;
+    const addr = (this._readWord(zpaddr) + this.y) & 0xFFFF;
     return this._memory.readByte(addr);
   }
 
@@ -151,7 +181,7 @@ export default class CPU {
     return (high << 8) | low;
   }
 
-  static _inc16(x: number): number {
-    return (x + 1) & 0xFFFF;
+  static _inc16(x: number, inc: ?number = 1): number {
+    return (x + inc) & 0xFFFF;
   }
 }
