@@ -39,7 +39,10 @@ export default class CPU {
     }
 
     this._dispatch[0x00] = this._brk.bind(this);
-    this._dispatch[0x09] = () => this._ora(this._immediate());
+    this._dispatch[0x05] = () => this._ora(this._zeroPage(), 3);
+    this._dispatch[0x09] = () => this._ora(this._immediate(), 2);
+    this._dispatch[0x0D] = () => this._ora(this._absolute(), 4);
+    this._dispatch[0x15] = () => this._ora(this._zeroPageX(), 4);
 
     this.reset();
   }
@@ -99,17 +102,39 @@ export default class CPU {
     this._halted = true;
   }
 
-  _ora(m: number): void {
+  _ora(m: number, cycles: number): void {
     this.a |= m;
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
-    this._cycles += 2;
+    this._cycles += cycles;
   }
 
   _immediate(): number {
     const data = this._memory.readByte(this.ip);
     this.ip = CPU._inc16(this.ip);
     return data;
+  }
+
+  _zeroPage(): number {
+    const addr = this._memory.readByte(this.ip);
+    this.ip = CPU._inc16(this.ip);
+    return this._memory.readByte(addr);
+  }
+
+  _zeroPageX(): number {
+    let addr = this._memory.readByte(this.ip);
+    this.ip = CPU._inc16(this.ip);
+    addr = (addr + this.x) & 0xFF;
+    return this._memory.readByte(addr);
+  }
+
+  _absolute(): number {
+    const addrLow = this._memory.readByte(this.ip);
+    this.ip = CPU._inc16(this.ip);
+    const addrHigh = this._memory.readByte(this.ip);
+    this.ip = CPU._inc16(this.ip);
+    const addr = (addrHigh << 8) | addrLow;
+    return this._memory.readByte(addr);
   }
 
   _setClear(flag: number, set: boolean) {
