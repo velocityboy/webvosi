@@ -521,4 +521,65 @@ describe('CPU Logic', function() {
       assert.equal(this.cpu.a, 0x71);
     });
   });
+  describe('BIT', function() {
+    it('should set no flags', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x3F;
+      this.memory.writeByte(0x1000, 0x2C);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+      this.memory.writeByte(0x1234, 0xFF);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1003);
+    });
+    it('should set the overflow flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x40;
+      this.memory.writeByte(0x1000, 0x2C);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+      this.memory.writeByte(0x1234, 0xFF);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, Flags.V);
+      assert.equal(this.cpu.ip, 0x1003);
+    });
+    it('should set the negative flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x80;
+      this.memory.writeByte(0x1000, 0x2C);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+      this.memory.writeByte(0x1234, 0xFF);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, Flags.N);
+      assert.equal(this.cpu.ip, 0x1003);
+    });
+    it('should work in zero page', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x40;
+      this.memory.writeByte(0x1000, 0x24);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x0034, 0xFF);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.flags, Flags.V);
+      assert.equal(this.cpu.ip, 0x1002);
+    });
+  });
 });

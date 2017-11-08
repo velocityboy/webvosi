@@ -53,8 +53,10 @@ export default class CPU {
     this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
     this._dispatch[0x1E] = () => this._aslm(this._absoluteX(), 7);
     this._dispatch[0x21] = () => this._and(this._indirectX(), 6);
+    this._dispatch[0x24] = () => this._bit(this._zeroPage(), 3);
     this._dispatch[0x25] = () => this._and(this._zeroPage(), 3);
     this._dispatch[0x29] = () => this._and(this._immediate(), 2);
+    this._dispatch[0x2C] = () => this._bit(this._absolute(), 4);
     this._dispatch[0x2D] = () => this._and(this._absolute(), 4);
     this._dispatch[0x31] = () => this._and(this._indirectY(), 5);
     this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
@@ -71,7 +73,6 @@ export default class CPU {
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0xB0] = this._bcs.bind(this);
     this._dispatch[0xF0] = this._beq.bind(this);
-
 
     this.reset();
   }
@@ -189,6 +190,13 @@ export default class CPU {
 
     this.ip = CPU._inc16(this.ip);
     this._cycles += 2;
+  }
+
+  _bit(addr: number, cycles: number): void {
+    const m = this.a & this._memory.readByte(addr);
+    this._setClear(Flags.V, (m & 0x40) !== 0);
+    this._setClear(Flags.N, (m & 0x80) !== 0);
+    this._cycles += cycles;
   }
 
   _brk(): void {
