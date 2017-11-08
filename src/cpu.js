@@ -78,6 +78,7 @@ export default class CPU {
     this._dispatch[0x7D] = () => this._adc(this._absoluteX(), 4);
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0xB0] = this._bcs.bind(this);
+    this._dispatch[0xB8] = this._clv.bind(this);
     this._dispatch[0xD0] = this._bne.bind(this);
     this._dispatch[0xD8] = this._cld.bind(this);
     this._dispatch[0xF0] = this._beq.bind(this);
@@ -306,6 +307,11 @@ export default class CPU {
 
   _cli(): void {
     this.flags &= ~Flags.DI;
+    this._cycles += 2;
+  }
+
+  _clv(): void {
+    this.flags &= ~Flags.V;
     this._cycles += 2;
   }
 
