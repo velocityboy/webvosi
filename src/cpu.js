@@ -60,6 +60,14 @@ export default class CPU {
     this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
     this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
+    this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
+    this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
+    this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
+    this._dispatch[0x6D] = () => this._adc(this._absolute(), 4);
+    this._dispatch[0x71] = () => this._adc(this._indirectY(), 5);
+    this._dispatch[0x75] = () => this._adc(this._zeroPageX(), 4);
+    this._dispatch[0x79] = () => this._adc(this._absoluteY(), 4);
+    this._dispatch[0x7D] = () => this._adc(this._absoluteX(), 4);
 
 
     this.reset();
@@ -96,6 +104,20 @@ export default class CPU {
 
   _invalidInstruction(): void {
     this._halted = true;
+  }
+
+  _adc(addr: number, cycles: number): void {
+    const m = this._memory.readByte(addr);
+    const sum = this.a + m + (this.flags & Flags.C);
+    this._setClear(Flags.Z, (sum & 0xFF) === 0);
+    this._setClear(Flags.N, (sum & 0x80) === 0x80);
+    this._setClear(Flags.C, sum >= 0x0100);
+    this._setClear(Flags.V,
+      ((~(this.a ^ m)) & (this.a ^ sum) & 0x80) != 0
+    );
+
+    this.a = sum & 0xFF;
+    this._cycles += cycles;
   }
 
   _and(addr: number, cycles: number): void {
