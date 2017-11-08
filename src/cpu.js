@@ -76,6 +76,7 @@ export default class CPU {
     this._dispatch[0x75] = () => this._adc(this._zeroPageX(), 4);
     this._dispatch[0x79] = () => this._adc(this._absoluteY(), 4);
     this._dispatch[0x7D] = () => this._adc(this._absoluteX(), 4);
+    this._dispatch[0x88] = this._dey.bind(this);
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0xB0] = this._bcs.bind(this);
     this._dispatch[0xB8] = this._clv.bind(this);
@@ -85,6 +86,7 @@ export default class CPU {
     this._dispatch[0xC5] = () => this._cmp(this._zeroPage(), 3);
     this._dispatch[0xC6] = () => this._dec(this._zeroPage(), 5);
     this._dispatch[0xC9] = () => this._cmp(this._immediate(), 2);
+    this._dispatch[0xCA] = this._dex.bind(this);
     this._dispatch[0xCC] = () => this._cpy(this._absolute(), 4);
     this._dispatch[0xCD] = () => this._cmp(this._absolute(), 4);
     this._dispatch[0xCE] = () => this._dec(this._absolute(), 6);
@@ -100,6 +102,7 @@ export default class CPU {
     this._dispatch[0xE4] = () => this._cpx(this._zeroPage(), 3);
     this._dispatch[0xEC] = () => this._cpx(this._absolute(), 4);
     this._dispatch[0xF0] = this._beq.bind(this);
+
 
     this.reset();
   }
@@ -372,6 +375,24 @@ export default class CPU {
     this._memory.writeByte(addr, m);
 
     this._cycles += cycles;
+  }
+
+  _dex(): void {
+    this.x = (this.x - 1) & 0xFF;
+
+    this._setClear(Flags.Z, this.x === 0);
+    this._setClear(Flags.N, (this.x & 0x80) === 0x80);
+
+    this._cycles += 2;
+  }
+
+  _dey(): void {
+    this.y = (this.y - 1) & 0xFF;
+
+    this._setClear(Flags.Z, this.y === 0);
+    this._setClear(Flags.N, (this.y & 0x80) === 0x80);
+
+    this._cycles += 2;
   }
 
   _ora(addr: number, cycles: number): void {
