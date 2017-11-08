@@ -50,6 +50,7 @@ export default class CPU {
     this._dispatch[0x11] = () => this._ora(this._indirectY(), 5);
     this._dispatch[0x15] = () => this._ora(this._zeroPageX(), 4);
     this._dispatch[0x16] = () => this._aslm(this._zeroPageX(), 6);
+    this._dispatch[0x18] = this._clc.bind(this);
     this._dispatch[0x19] = () => this._ora(this._absoluteY(), 4);
     this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
     this._dispatch[0x1E] = () => this._aslm(this._absoluteX(), 7);
@@ -288,6 +289,11 @@ export default class CPU {
     }
 
     this.ip = CPU._inc16(this.ip);
+    this._cycles += 2;
+  }
+
+  _clc(): void {
+    this.flags &= ~Flags.C;
     this._cycles += 2;
   }
 
