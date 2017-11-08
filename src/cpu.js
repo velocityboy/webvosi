@@ -79,6 +79,7 @@ export default class CPU {
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0xB0] = this._bcs.bind(this);
     this._dispatch[0xB8] = this._clv.bind(this);
+    this._dispatch[0xC9] = () => this._cmp(this._immediate(), 2);
     this._dispatch[0xD0] = this._bne.bind(this);
     this._dispatch[0xD8] = this._cld.bind(this);
     this._dispatch[0xF0] = this._beq.bind(this);
@@ -313,6 +314,16 @@ export default class CPU {
   _clv(): void {
     this.flags &= ~Flags.V;
     this._cycles += 2;
+  }
+
+  _cmp(addr: number, cycles: number): void {
+    const m = this.a - this._memory.readByte(addr);
+
+    this._setClear(Flags.Z, (m & 0xFF) === 0);
+    this._setClear(Flags.N, (m & 0x80) === 0x80);
+    this._setClear(Flags.C, (m & 0x100) === 0);
+
+    this._cycles += cycles;
   }
 
   _ora(addr: number, cycles: number): void {
