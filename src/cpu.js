@@ -89,6 +89,9 @@ export default class CPU {
     this._dispatch[0xD8] = this._cld.bind(this);
     this._dispatch[0xD9] = () => this._cmp(this._absoluteY(), 4);
     this._dispatch[0xDD] = () => this._cmp(this._absoluteX(), 4);
+    this._dispatch[0xE0] = () => this._cpx(this._immediate(), 2);
+    this._dispatch[0xE4] = () => this._cpx(this._zeroPage(), 3);
+    this._dispatch[0xEC] = () => this._cpx(this._absolute(), 4);
     this._dispatch[0xF0] = this._beq.bind(this);
 
 
@@ -327,6 +330,16 @@ export default class CPU {
 
   _cmp(addr: number, cycles: number): void {
     const m = this.a - this._memory.readByte(addr);
+
+    this._setClear(Flags.Z, (m & 0xFF) === 0);
+    this._setClear(Flags.N, (m & 0x80) === 0x80);
+    this._setClear(Flags.C, (m & 0x100) === 0);
+
+    this._cycles += cycles;
+  }
+
+  _cpx(addr: number, cycles: number): void {
+    const m = this.x - this._memory.readByte(addr);
 
     this._setClear(Flags.Z, (m & 0xFF) === 0);
     this._setClear(Flags.N, (m & 0x80) === 0x80);
