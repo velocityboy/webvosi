@@ -58,6 +58,7 @@ export default class CPU {
     this._dispatch[0x29] = () => this._and(this._immediate(), 2);
     this._dispatch[0x2C] = () => this._bit(this._absolute(), 4);
     this._dispatch[0x2D] = () => this._and(this._absolute(), 4);
+    this._dispatch[0x30] = this._bmi.bind(this);
     this._dispatch[0x31] = () => this._and(this._indirectY(), 5);
     this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
     this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
@@ -197,6 +198,19 @@ export default class CPU {
     this._setClear(Flags.V, (m & 0x40) !== 0);
     this._setClear(Flags.N, (m & 0x80) !== 0);
     this._cycles += cycles;
+  }
+
+  _bmi(): void {
+    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
+
+    if ((this.flags & Flags.N) !== 0) {
+      this.ip = (this.ip + 1 + offset) & 0xFFFF;
+      this._cycles += 3;
+      return;
+    }
+
+    this.ip = CPU._inc16(this.ip);
+    this._cycles += 2;
   }
 
   _brk(): void {
