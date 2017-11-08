@@ -68,6 +68,7 @@ export default class CPU {
     this._dispatch[0x75] = () => this._adc(this._zeroPageX(), 4);
     this._dispatch[0x79] = () => this._adc(this._absoluteY(), 4);
     this._dispatch[0x7D] = () => this._adc(this._absoluteX(), 4);
+    this._dispatch[0x90] = this._bcc.bind(this);
 
 
     this.reset();
@@ -147,6 +148,19 @@ export default class CPU {
     x = this._asl(x);
     this._memory.writeByte(addr, x);
     this._cycles += cycles;
+  }
+
+  _bcc(): void {
+    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
+
+    if ((this.flags & Flags.C) === 0) {
+      this.ip = (this.ip + 1 + offset) & 0xFFFF;
+      this._cycles += 3;
+      return;
+    }
+
+    this.ip = CPU._inc16(this.ip);
+    this._cycles += 2;
   }
 
   _brk(): void {
@@ -245,5 +259,13 @@ export default class CPU {
 
   static _inc16(x: number, inc: ?number = 1): number {
     return (x + inc) & 0xFFFF;
+  }
+
+  static _byteToSigned(n: number): number {
+    if ((n & 0x80) === 0) {
+      return n;
+    }
+
+    return -((~n+1) & 0xFF);
   }
 }
