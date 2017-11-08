@@ -45,11 +45,16 @@ export default class CPU {
     this._dispatch[0x0D] = () => this._ora(this._absolute(), 4);
     this._dispatch[0x11] = () => this._ora(this._indirectY(), 5);
     this._dispatch[0x15] = () => this._ora(this._zeroPageX(), 4);
-
-    // $TODO what does '+1 if page crossed' mean on a one byte operand?
     this._dispatch[0x19] = () => this._ora(this._absoluteY(), 4);
     this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
-
+    this._dispatch[0x21] = () => this._and(this._indirectX(), 6);
+    this._dispatch[0x25] = () => this._and(this._zeroPage(), 3);
+    this._dispatch[0x29] = () => this._and(this._immediate(), 2);
+    this._dispatch[0x2D] = () => this._and(this._absolute(), 4);
+    this._dispatch[0x31] = () => this._and(this._indirectY(), 5);
+    this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
+    this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
+    this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
 
 
     this.reset();
@@ -108,6 +113,22 @@ export default class CPU {
 
   _invalidInstruction(): void {
     this._halted = true;
+  }
+
+  _and(addr: number, cycles: number): void {
+    const m = this._memory.readByte(addr);
+    this.a &= m;
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+    this._cycles += cycles;
+  }
+
+  _and(addr: number, cycles: number): void {
+    const m = this._memory.readByte(addr);
+    this.a &= m;
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+    this._cycles += cycles;
   }
 
   _ora(addr: number, cycles: number): void {
