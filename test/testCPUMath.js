@@ -193,4 +193,17 @@ describe('CPU Math', function() {
       assert.equal(this.cpu.ip, 0x1001);
     });
   });
+  describe('CLD', function() {
+    it('should clear decimal flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = Flags.D;
+      this.memory.writeByte(0x1000, 0xD8);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+    });
+  });
 });
