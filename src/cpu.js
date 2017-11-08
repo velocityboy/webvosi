@@ -94,28 +94,6 @@ export default class CPU {
     return this._cycles;
   }
 
-  _brk(): void {
-    const ret = CPU._inc16(this.ip);
-    const vector = this._readWord(CPU.BRK);
-
-    if (this.sp <= 2) {
-      this._halted = true;
-      return;
-    }
-
-    this._memory.writeByte(this.sp | CPU.STACK_BASE, (ret >> 8) & 0xFF);
-    this.sp -= 1;
-    this._memory.writeByte(this.sp | CPU.STACK_BASE, ret & 0xFF);
-    this.sp -= 1;
-    this._memory.writeByte(this.sp | CPU.STACK_BASE, this.flags | Flags.B);
-    this.sp -= 1;
-
-    this.flags |= Flags.DI;
-
-    this.ip = vector;
-    this._cycles += 7;
-  }
-
   _invalidInstruction(): void {
     this._halted = true;
   }
@@ -123,22 +101,6 @@ export default class CPU {
   _and(addr: number, cycles: number): void {
     const m = this._memory.readByte(addr);
     this.a &= m;
-    this._setClear(Flags.Z, this.a === 0);
-    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
-    this._cycles += cycles;
-  }
-
-  _and(addr: number, cycles: number): void {
-    const m = this._memory.readByte(addr);
-    this.a &= m;
-    this._setClear(Flags.Z, this.a === 0);
-    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
-    this._cycles += cycles;
-  }
-
-  _ora(addr: number, cycles: number): void {
-    const m = this._memory.readByte(addr);
-    this.a |= m;
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
     this._cycles += cycles;
@@ -162,6 +124,36 @@ export default class CPU {
     let x = this._memory.readByte(addr);
     x = this._asl(x);
     this._memory.writeByte(addr, x);
+    this._cycles += cycles;
+  }
+
+  _brk(): void {
+    const ret = CPU._inc16(this.ip);
+    const vector = this._readWord(CPU.BRK);
+
+    if (this.sp <= 2) {
+      this._halted = true;
+      return;
+    }
+
+    this._memory.writeByte(this.sp | CPU.STACK_BASE, (ret >> 8) & 0xFF);
+    this.sp -= 1;
+    this._memory.writeByte(this.sp | CPU.STACK_BASE, ret & 0xFF);
+    this.sp -= 1;
+    this._memory.writeByte(this.sp | CPU.STACK_BASE, this.flags | Flags.B);
+    this.sp -= 1;
+
+    this.flags |= Flags.DI;
+
+    this.ip = vector;
+    this._cycles += 7;
+  }
+
+  _ora(addr: number, cycles: number): void {
+    const m = this._memory.readByte(addr);
+    this.a |= m;
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
     this._cycles += cycles;
   }
 
