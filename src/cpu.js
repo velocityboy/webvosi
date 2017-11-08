@@ -83,21 +83,23 @@ export default class CPU {
     this._dispatch[0xC1] = () => this._cmp(this._indirectX(), 6);
     this._dispatch[0xC4] = () => this._cpy(this._zeroPage(), 3);
     this._dispatch[0xC5] = () => this._cmp(this._zeroPage(), 3);
+    this._dispatch[0xC6] = () => this._dec(this._zeroPage(), 5);
     this._dispatch[0xC9] = () => this._cmp(this._immediate(), 2);
     this._dispatch[0xCC] = () => this._cpy(this._absolute(), 4);
     this._dispatch[0xCD] = () => this._cmp(this._absolute(), 4);
+    this._dispatch[0xCE] = () => this._dec(this._absolute(), 6);
     this._dispatch[0xD0] = this._bne.bind(this);
     this._dispatch[0xD1] = () => this._cmp(this._indirectY(), 5);
     this._dispatch[0xD5] = () => this._cmp(this._zeroPageX(), 4);
+    this._dispatch[0xD6] = () => this._dec(this._zeroPageX(), 6);
     this._dispatch[0xD8] = this._cld.bind(this);
     this._dispatch[0xD9] = () => this._cmp(this._absoluteY(), 4);
     this._dispatch[0xDD] = () => this._cmp(this._absoluteX(), 4);
+    this._dispatch[0xDE] = () => this._dec(this._absoluteX(), 7);
     this._dispatch[0xE0] = () => this._cpx(this._immediate(), 2);
     this._dispatch[0xE4] = () => this._cpx(this._zeroPage(), 3);
     this._dispatch[0xEC] = () => this._cpx(this._absolute(), 4);
     this._dispatch[0xF0] = this._beq.bind(this);
-
-
 
     this.reset();
   }
@@ -357,6 +359,17 @@ export default class CPU {
     this._setClear(Flags.Z, (m & 0xFF) === 0);
     this._setClear(Flags.N, (m & 0x80) === 0x80);
     this._setClear(Flags.C, (m & 0x100) === 0);
+
+    this._cycles += cycles;
+  }
+
+  _dec(addr: number, cycles: number): void {
+    const m = (this._memory.readByte(addr) - 1) & 0xFF;
+
+    this._setClear(Flags.Z, m === 0);
+    this._setClear(Flags.N, (m & 0x80) === 0x80);
+
+    this._memory.writeByte(addr, m);
 
     this._cycles += cycles;
   }
