@@ -41,12 +41,17 @@ export default class CPU {
     this._dispatch[0x00] = this._brk.bind(this);
     this._dispatch[0x01] = () => this._ora(this._indirectX(), 6);
     this._dispatch[0x05] = () => this._ora(this._zeroPage(), 3);
+    this._dispatch[0x06] = () => this._aslm(this._zeroPage(), 5);
     this._dispatch[0x09] = () => this._ora(this._immediate(), 2);
+    this._dispatch[0x0A] = () => this._asla();
     this._dispatch[0x0D] = () => this._ora(this._absolute(), 4);
+    this._dispatch[0x0E] = () => this._aslm(this._absolute(), 6);
     this._dispatch[0x11] = () => this._ora(this._indirectY(), 5);
     this._dispatch[0x15] = () => this._ora(this._zeroPageX(), 4);
+    this._dispatch[0x16] = () => this._aslm(this._zeroPageX(), 6);
     this._dispatch[0x19] = () => this._ora(this._absoluteY(), 4);
     this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
+    this._dispatch[0x1E] = () => this._aslm(this._absoluteX(), 7);
     this._dispatch[0x21] = () => this._and(this._indirectX(), 6);
     this._dispatch[0x25] = () => this._and(this._zeroPage(), 3);
     this._dispatch[0x29] = () => this._and(this._immediate(), 2);
@@ -136,6 +141,27 @@ export default class CPU {
     this.a |= m;
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+    this._cycles += cycles;
+  }
+
+  _asl(value: number): number {
+    value = value << 1;
+    this._setClear(Flags.Z, value === 0);
+    this._setClear(Flags.N, (value & 0x80) === 0x80);
+    this._setClear(Flags.C, (value & 0x100) === 0x100);
+
+    return value & 0xFF;
+  }
+
+  _asla(): void {
+    this.a = this._asl(this.a);
+    this._cycles += 2;
+  }
+
+  _aslm(addr: number, cycles: number): void {
+    let x = this._memory.readByte(addr);
+    x = this._asl(x);
+    this._memory.writeByte(addr, x);
     this._cycles += cycles;
   }
 
