@@ -66,6 +66,7 @@ export default class CPU {
     this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
     this._dispatch[0x50] = this._bvc.bind(this);
+    this._dispatch[0x58] = this._cli.bind(this);
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
     this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
@@ -300,6 +301,11 @@ export default class CPU {
 
   _cld(): void {
     this.flags &= ~Flags.D;
+    this._cycles += 2;
+  }
+
+  _cli(): void {
+    this.flags &= ~Flags.DI;
     this._cycles += 2;
   }
 

@@ -206,4 +206,17 @@ describe('CPU Math', function() {
       assert.equal(this.cpu.ip, 0x1001);
     });
   });
+  describe('CLI', function() {
+    it('should clear interrupt disable flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = Flags.DI;
+      this.memory.writeByte(0x1000, 0x58);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+    });
+  });
 });
