@@ -79,9 +79,12 @@ export default class CPU {
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0xB0] = this._bcs.bind(this);
     this._dispatch[0xB8] = this._clv.bind(this);
+    this._dispatch[0xC0] = () => this._cpy(this._immediate(), 2);
     this._dispatch[0xC1] = () => this._cmp(this._indirectX(), 6);
+    this._dispatch[0xC4] = () => this._cpy(this._zeroPage(), 3);
     this._dispatch[0xC5] = () => this._cmp(this._zeroPage(), 3);
     this._dispatch[0xC9] = () => this._cmp(this._immediate(), 2);
+    this._dispatch[0xCC] = () => this._cpy(this._absolute(), 4);
     this._dispatch[0xCD] = () => this._cmp(this._absolute(), 4);
     this._dispatch[0xD0] = this._bne.bind(this);
     this._dispatch[0xD1] = () => this._cmp(this._indirectY(), 5);
@@ -340,6 +343,16 @@ export default class CPU {
 
   _cpx(addr: number, cycles: number): void {
     const m = this.x - this._memory.readByte(addr);
+
+    this._setClear(Flags.Z, (m & 0xFF) === 0);
+    this._setClear(Flags.N, (m & 0x80) === 0x80);
+    this._setClear(Flags.C, (m & 0x100) === 0);
+
+    this._cycles += cycles;
+  }
+
+  _cpy(addr: number, cycles: number): void {
+    const m = this.y - this._memory.readByte(addr);
 
     this._setClear(Flags.Z, (m & 0xFF) === 0);
     this._setClear(Flags.N, (m & 0x80) === 0x80);
