@@ -64,10 +64,12 @@ export default class CPU {
     this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
     this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
+    this._dispatch[0x50] = this._bvc.bind(this);
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
     this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
     this._dispatch[0x6D] = () => this._adc(this._absolute(), 4);
+    this._dispatch[0x70] = this._bvs.bind(this);
     this._dispatch[0x71] = () => this._adc(this._indirectY(), 5);
     this._dispatch[0x75] = () => this._adc(this._zeroPageX(), 4);
     this._dispatch[0x79] = () => this._adc(this._absoluteY(), 4);
@@ -261,6 +263,32 @@ export default class CPU {
 
     this.ip = vector;
     this._cycles += 7;
+  }
+
+  _bvc(): void {
+    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
+
+    if ((this.flags & Flags.V) === 0) {
+      this.ip = (this.ip + 1 + offset) & 0xFFFF;
+      this._cycles += 3;
+      return;
+    }
+
+    this.ip = CPU._inc16(this.ip);
+    this._cycles += 2;
+  }
+
+  _bvs(): void {
+    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
+
+    if ((this.flags & Flags.V) !== 0) {
+      this.ip = (this.ip + 1 + offset) & 0xFFFF;
+      this._cycles += 3;
+      return;
+    }
+
+    this.ip = CPU._inc16(this.ip);
+    this._cycles += 2;
   }
 
   _ora(addr: number, cycles: number): void {

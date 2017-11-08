@@ -214,4 +214,74 @@ describe('CPU Branching', function() {
       assert.equal(this.cpu.ip, 0x0FFF);
     });
   });
+  describe('BVC', function() {
+    it('should not branch', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = Flags.V;
+      this.memory.writeByte(0x1000, 0x50);
+      this.memory.writeByte(0x1001, 0x02);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1002);
+    });
+    it('should branch forwards', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x50);
+      this.memory.writeByte(0x1001, 0x02);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1004);
+    });
+    it('should branch backwards', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x50);
+      this.memory.writeByte(0x1001, 0xFD);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x0FFF);
+    });
+  });
+  describe('BVS', function() {
+    it('should not branch', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x70);
+      this.memory.writeByte(0x1001, 0x02);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1002);
+    });
+    it('should branch forwards', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = Flags.V;
+      this.memory.writeByte(0x1000, 0x70);
+      this.memory.writeByte(0x1001, 0x02);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1004);
+    });
+    it('should branch backwards', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = Flags.V;
+      this.memory.writeByte(0x1000, 0x70);
+      this.memory.writeByte(0x1001, 0xFD);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x0FFF);
+    });
+  });
 });
