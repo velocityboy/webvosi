@@ -68,15 +68,20 @@ export default class CPU {
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
     this._dispatch[0x41] = () => this._eor(this._indirectX(), 6);
     this._dispatch[0x45] = () => this._eor(this._zeroPage(), 3);
+    this._dispatch[0x46] = () => this._lsrm(this._zeroPage(), 5);
     this._dispatch[0x49] = () => this._eor(this._immediate(), 2);
+    this._dispatch[0x4A] = this._lsra.bind(this);
     this._dispatch[0x4C] = () => this._jmp(this._absolute(), 3);
     this._dispatch[0x4D] = () => this._eor(this._absolute(), 4);
+    this._dispatch[0x4E] = () => this._lsrm(this._absolute(), 6);
     this._dispatch[0x50] = this._bvc.bind(this);
     this._dispatch[0x51] = () => this._eor(this._indirectY(), 5);
     this._dispatch[0x55] = () => this._eor(this._zeroPageX(), 4);
+    this._dispatch[0x56] = () => this._lsrm(this._zeroPageX(), 6);
     this._dispatch[0x58] = this._cli.bind(this);
     this._dispatch[0x59] = () => this._eor(this._absoluteY(), 4);
     this._dispatch[0x5D] = () => this._eor(this._absoluteX(), 4);
+    this._dispatch[0x5E] = () => this._lsrm(this._absoluteX(), 7);
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
     this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
@@ -513,6 +518,27 @@ export default class CPU {
     this.y = this._memory.readByte(addr);
     this._setClear(Flags.Z, this.y === 0);
     this._setClear(Flags.N, (this.y & 0x80) === 0x80);
+    this._cycles += cycles;
+  }
+
+  _lsr(value: number): number {
+    this._setClear(Flags.C, (value & 0x01) === 0x01);
+    value = value >> 1;
+    this._setClear(Flags.Z, value === 0);
+    this._setClear(Flags.N, false);
+
+    return value;
+  }
+
+  _lsra(): void {
+    this.a = this._lsr(this.a);
+    this._cycles += 2;
+  }
+
+  _lsrm(addr: number, cycles: number): void {
+    let x = this._memory.readByte(addr);
+    x = this._lsr(x);
+    this._memory.writeByte(addr, x);
     this._cycles += cycles;
   }
 
