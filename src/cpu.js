@@ -77,6 +77,7 @@ export default class CPU {
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
     this._dispatch[0x3E] = () => this._rolm(this._absoluteX(), 7);
 
+    this._dispatch[0x40] = this._rti.bind(this);
     this._dispatch[0x41] = () => this._eor(this._indirectX(), 6);
     this._dispatch[0x45] = () => this._eor(this._zeroPage(), 3);
     this._dispatch[0x46] = () => this._lsrm(this._zeroPage(), 5);
@@ -684,6 +685,25 @@ export default class CPU {
     x = this._ror(x);
     this._memory.writeByte(addr, x);
     this._cycles += cycles;
+  }
+
+  _rti(): void {
+    if (this.sp >= 0xFD) {
+      this._halted = true;
+      return;
+    }
+
+    this.flags &= Flags.ALWAYS;
+
+    this.sp++;
+    this.flags |= (this._memory.readByte(this.sp) & ~Flags.ALWAYS);
+    this.sp++;
+    const low = this._memory.readByte(this.sp);
+    this.sp++;
+    const high = this._memory.readByte(this.sp);
+
+    this.ip = (high << 8) | low;
+    this._cycles += 6;
   }
 
   _immediate(): number {
