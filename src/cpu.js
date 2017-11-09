@@ -59,6 +59,7 @@ export default class CPU {
     this._dispatch[0x21] = () => this._and(this._indirectX(), 6);
     this._dispatch[0x24] = () => this._bit(this._zeroPage(), 3);
     this._dispatch[0x25] = () => this._and(this._zeroPage(), 3);
+    this._dispatch[0x28] = this._plp.bind(this);
     this._dispatch[0x29] = () => this._and(this._immediate(), 2);
     this._dispatch[0x2C] = () => this._bit(this._absolute(), 4);
     this._dispatch[0x2D] = () => this._and(this._absolute(), 4);
@@ -590,6 +591,17 @@ export default class CPU {
 
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+
+    this._cycles += 4;
+  }
+
+  _plp(): void {
+    if (this.sp == 0xFF) {
+      this._halted = true;
+      return;
+    }
+    this.sp++;
+    this.flags = this._memory.readByte(0x0100 | this.sp);
 
     this._cycles += 4;
   }

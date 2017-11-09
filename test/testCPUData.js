@@ -452,4 +452,33 @@ describe('CPU Data Moves', function() {
       assert.equal(this.cpu.isHalted(), true);
     });
   });
+  describe('PLP', function() {
+    it('should pull flags', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.sp = 0xFE;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x28)
+      this.memory.writeByte(0x01FF, 0x55);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, 0x55);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.sp, 0xFF);
+    });
+    it('should stack overflow', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.sp = 0xFF;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x28)
+      this.memory.writeByte(0x01FF, 0x55);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.isHalted(), true);
+    });
+  });
 });
