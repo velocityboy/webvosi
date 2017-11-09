@@ -120,6 +120,15 @@ export default class CPU {
     this._dispatch[0xF6] = () => this._inc(this._zeroPageX(), 6);
     this._dispatch[0xFE] = () => this._inc(this._absoluteX(), 7);
 
+    this._dispatch[0xA1] = () => this._lda(this._indirectX(), 6);
+    this._dispatch[0xA5] = () => this._lda(this._zeroPage(), 3);
+    this._dispatch[0xA9] = () => this._lda(this._immediate(), 2);
+    this._dispatch[0xAD] = () => this._lda(this._absolute(), 4);
+    this._dispatch[0xB5] = () => this._lda(this._zeroPageX(), 4);
+    this._dispatch[0xB9] = () => this._lda(this._absoluteY(), 4);
+    this._dispatch[0xBD] = () => this._lda(this._absoluteX(), 4);
+    this._dispatch[0xB1] = () => this._lda(this._indirectY(), 5);
+
 
     this.reset();
   }
@@ -474,6 +483,13 @@ export default class CPU {
 
     this.ip = addr;
     this._cycles += 6;
+  }
+
+  _lda(addr: number, cycles: number): void {
+    this.a = this._memory.readByte(addr);
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+    this._cycles += cycles;
   }
 
   _ora(addr: number, cycles: number): void {
