@@ -342,4 +342,15 @@ describe('CPU Branching', function() {
       assert.equal(this.cpu.isHalted(), true);
     });
   });
+  describe('NOP', function() {
+    it('should do nothing', function() {
+      this.cpu.ip = 0x1000;
+      this.memory.writeByte(0x1000, 0xEA);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1001);
+    });
+  });
 });

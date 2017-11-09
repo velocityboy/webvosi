@@ -137,6 +137,7 @@ export default class CPU {
     this._dispatch[0xE4] = () => this._cpx(this._zeroPage(), 3);
     this._dispatch[0xE6] = () => this._inc(this._zeroPage(), 5);
     this._dispatch[0xE8] = this._inx.bind(this);
+    this._dispatch[0xEA] = this._nop.bind(this);
     this._dispatch[0xEC] = () => this._cpx(this._absolute(), 4);
     this._dispatch[0xEE] = () => this._inc(this._absolute(), 6);
     this._dispatch[0xF0] = this._beq.bind(this);
@@ -540,6 +541,10 @@ export default class CPU {
     x = this._lsr(x);
     this._memory.writeByte(addr, x);
     this._cycles += cycles;
+  }
+
+  _nop(): void {
+    this._cycles += 2;
   }
 
   _ora(addr: number, cycles: number): void {
