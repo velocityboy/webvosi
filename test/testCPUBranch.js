@@ -353,6 +353,35 @@ describe('CPU Branching', function() {
       assert.equal(this.cpu.ip, 0x1001);
     });
   });
+  describe('RTS', function() {
+    it('should restore the program counter', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFD;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0xFE, 0x33);
+      this.memory.writeByte(0xFF, 0x12);
+      this.memory.writeByte(0x1000, 0x60);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 6);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1234);
+    });
+    it('should overflow the stack', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFE;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0xFD, 0xFF);
+      this.memory.writeByte(0xFE, 0x34);
+      this.memory.writeByte(0xFF, 0x12);
+      this.memory.writeByte(0x1000, 0x60);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.isHalted(), true);
+    });
+  });
   describe('RTI', function() {
     it('should restore processor state', function() {
       this.cpu.ip = 0x1000;

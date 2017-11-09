@@ -97,6 +97,7 @@ export default class CPU {
     this._dispatch[0x5D] = () => this._eor(this._absoluteX(), 4);
     this._dispatch[0x5E] = () => this._lsrm(this._absoluteX(), 7);
 
+    this._dispatch[0x60] = this._rts.bind(this);
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
     this._dispatch[0x66] = () => this._rorm(this._zeroPage(), 5);
@@ -703,6 +704,21 @@ export default class CPU {
     const high = this._memory.readByte(this.sp);
 
     this.ip = (high << 8) | low;
+    this._cycles += 6;
+  }
+
+  _rts(): void {
+    if (this.sp >= 0xFE) {
+      this._halted = true;
+      return;
+    }
+
+    this.sp++;
+    const low = this._memory.readByte(this.sp);
+    this.sp++;
+    const high = this._memory.readByte(this.sp);
+
+    this.ip = CPU._inc16((high << 8) | low);
     this._cycles += 6;
   }
 
