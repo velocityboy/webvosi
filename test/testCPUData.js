@@ -392,4 +392,64 @@ describe('CPU Data Moves', function() {
       assert.equal(this.cpu.isHalted(), true);
     });
   });
+  describe('PLA', function() {
+    it('should pull a', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.sp = 0xFE;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x68)
+      this.memory.writeByte(0x01FF, 0x42);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.sp, 0xFF);
+      assert.equal(this.cpu.a, 0x42);
+    });
+    it('should set the zero flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFE;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x68)
+      this.memory.writeByte(0x01FF, 0x00);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, Flags.Z);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.sp, 0xFF);
+      assert.equal(this.cpu.a, 0x00);
+    });
+    it('should set the negative flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFE;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x68)
+      this.memory.writeByte(0x01FF, 0x80);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.flags, Flags.N);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.sp, 0xFF);
+      assert.equal(this.cpu.a, 0x80);
+    });
+    it('should throw a stack exception', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFF;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x68);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.isHalted(), true);
+    });
+  });
 });

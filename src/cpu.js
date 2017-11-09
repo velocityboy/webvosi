@@ -86,6 +86,7 @@ export default class CPU {
     this._dispatch[0x5E] = () => this._lsrm(this._absoluteX(), 7);
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
+    this._dispatch[0x68] = this._pla.bind(this);
     this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
     this._dispatch[0x6C] = () => this._jmp(this._indirect(), 5);
     this._dispatch[0x6D] = () => this._adc(this._absolute(), 4);
@@ -577,6 +578,20 @@ export default class CPU {
     this._memory.writeByte(0x0100 | this.sp, this.flags);
     this.sp--;
     this._cycles += 3;
+  }
+
+  _pla(): void {
+    if (this.sp == 0xFF) {
+      this._halted = true;
+      return;
+    }
+    this.sp++;
+    this.a = this._memory.readByte(0x0100 | this.sp);
+
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
+
+    this._cycles += 4;
   }
 
   _immediate(): number {
