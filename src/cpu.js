@@ -47,6 +47,7 @@ export default class CPU {
     this._dispatch[0x0A] = () => this._asla();
     this._dispatch[0x0D] = () => this._ora(this._absolute(), 4);
     this._dispatch[0x0E] = () => this._aslm(this._absolute(), 6);
+
     this._dispatch[0x10] = this._bpl.bind(this);
     this._dispatch[0x11] = () => this._ora(this._indirectY(), 5);
     this._dispatch[0x15] = () => this._ora(this._zeroPageX(), 4);
@@ -55,6 +56,7 @@ export default class CPU {
     this._dispatch[0x19] = () => this._ora(this._absoluteY(), 4);
     this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
     this._dispatch[0x1E] = () => this._aslm(this._absoluteX(), 7);
+
     this._dispatch[0x20] = this._jsr.bind(this);
     this._dispatch[0x21] = () => this._and(this._indirectX(), 6);
     this._dispatch[0x24] = () => this._bit(this._zeroPage(), 3);
@@ -63,11 +65,13 @@ export default class CPU {
     this._dispatch[0x29] = () => this._and(this._immediate(), 2);
     this._dispatch[0x2C] = () => this._bit(this._absolute(), 4);
     this._dispatch[0x2D] = () => this._and(this._absolute(), 4);
+
     this._dispatch[0x30] = this._bmi.bind(this);
     this._dispatch[0x31] = () => this._and(this._indirectY(), 5);
     this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
     this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
+
     this._dispatch[0x41] = () => this._eor(this._indirectX(), 6);
     this._dispatch[0x45] = () => this._eor(this._zeroPage(), 3);
     this._dispatch[0x46] = () => this._lsrm(this._zeroPage(), 5);
@@ -77,6 +81,7 @@ export default class CPU {
     this._dispatch[0x4C] = () => this._jmp(this._absolute(), 3);
     this._dispatch[0x4D] = () => this._eor(this._absolute(), 4);
     this._dispatch[0x4E] = () => this._lsrm(this._absolute(), 6);
+
     this._dispatch[0x50] = this._bvc.bind(this);
     this._dispatch[0x51] = () => this._eor(this._indirectY(), 5);
     this._dispatch[0x55] = () => this._eor(this._zeroPageX(), 4);
@@ -85,19 +90,24 @@ export default class CPU {
     this._dispatch[0x59] = () => this._eor(this._absoluteY(), 4);
     this._dispatch[0x5D] = () => this._eor(this._absoluteX(), 4);
     this._dispatch[0x5E] = () => this._lsrm(this._absoluteX(), 7);
+
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
     this._dispatch[0x68] = this._pla.bind(this);
     this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
     this._dispatch[0x6C] = () => this._jmp(this._indirect(), 5);
     this._dispatch[0x6D] = () => this._adc(this._absolute(), 4);
+
     this._dispatch[0x70] = this._bvs.bind(this);
     this._dispatch[0x71] = () => this._adc(this._indirectY(), 5);
     this._dispatch[0x75] = () => this._adc(this._zeroPageX(), 4);
     this._dispatch[0x79] = () => this._adc(this._absoluteY(), 4);
     this._dispatch[0x7D] = () => this._adc(this._absoluteX(), 4);
+
     this._dispatch[0x88] = this._dey.bind(this);
+
     this._dispatch[0x90] = this._bcc.bind(this);
+
     this._dispatch[0xA0] = () => this._ldy(this._immediate(), 2);
     this._dispatch[0xA1] = () => this._lda(this._indirectX(), 6);
     this._dispatch[0xA2] = () => this._ldx(this._immediate(), 2);
@@ -108,6 +118,7 @@ export default class CPU {
     this._dispatch[0xAC] = () => this._ldy(this._absolute(), 4);
     this._dispatch[0xAD] = () => this._lda(this._absolute(), 4);
     this._dispatch[0xAE] = () => this._ldx(this._absolute(), 4);
+
     this._dispatch[0xB0] = this._bcs.bind(this);
     this._dispatch[0xB1] = () => this._lda(this._indirectY(), 5);
     this._dispatch[0xB4] = () => this._ldy(this._zeroPageX(), 4);
@@ -118,6 +129,7 @@ export default class CPU {
     this._dispatch[0xBC] = () => this._ldy(this._absoluteX(), 4);
     this._dispatch[0xBD] = () => this._lda(this._absoluteX(), 4);
     this._dispatch[0xBE] = () => this._ldx(this._absoluteY(), 4);
+
     this._dispatch[0xC0] = () => this._cpy(this._immediate(), 2);
     this._dispatch[0xC1] = () => this._cmp(this._indirectX(), 6);
     this._dispatch[0xC4] = () => this._cpy(this._zeroPage(), 3);
@@ -129,6 +141,7 @@ export default class CPU {
     this._dispatch[0xCC] = () => this._cpy(this._absolute(), 4);
     this._dispatch[0xCD] = () => this._cmp(this._absolute(), 4);
     this._dispatch[0xCE] = () => this._dec(this._absolute(), 6);
+
     this._dispatch[0xD0] = this._bne.bind(this);
     this._dispatch[0xD1] = () => this._cmp(this._indirectY(), 5);
     this._dispatch[0xD5] = () => this._cmp(this._zeroPageX(), 4);
@@ -137,6 +150,7 @@ export default class CPU {
     this._dispatch[0xD9] = () => this._cmp(this._absoluteY(), 4);
     this._dispatch[0xDD] = () => this._cmp(this._absoluteX(), 4);
     this._dispatch[0xDE] = () => this._dec(this._absoluteX(), 7);
+
     this._dispatch[0xE0] = () => this._cpx(this._immediate(), 2);
     this._dispatch[0xE4] = () => this._cpx(this._zeroPage(), 3);
     this._dispatch[0xE6] = () => this._inc(this._zeroPage(), 5);
@@ -144,11 +158,17 @@ export default class CPU {
     this._dispatch[0xEA] = this._nop.bind(this);
     this._dispatch[0xEC] = () => this._cpx(this._absolute(), 4);
     this._dispatch[0xEE] = () => this._inc(this._absolute(), 6);
+
     this._dispatch[0xF0] = this._beq.bind(this);
     this._dispatch[0xF6] = () => this._inc(this._zeroPageX(), 6);
     this._dispatch[0xFE] = () => this._inc(this._absoluteX(), 7);
 
+    this._dispatch[0x2A] = this._rola.bind(this);
+    this._dispatch[0x2E] = () => this._rolm(this._absolute(), 6);
 
+    this._dispatch[0x26] = () => this._rolm(this._zeroPage(), 5);
+    this._dispatch[0x36] = () => this._rolm(this._zeroPageX(), 6);
+    this._dispatch[0x3E] = () => this._rolm(this._absoluteX(), 7);
 
     this.reset();
   }
@@ -604,6 +624,33 @@ export default class CPU {
     this.flags = this._memory.readByte(0x0100 | this.sp);
 
     this._cycles += 4;
+  }
+
+  _rol(value: number): number {
+    value = value << 1;
+
+    if ((this.flags & Flags.C) != 0) {
+      value |= 0x01;
+    }
+
+    this._setClear(Flags.C, (value & 0x0100) === 0x0100);
+    value &= 0xFF;
+    this._setClear(Flags.Z, value === 0);
+    this._setClear(Flags.N, (value & 0x80) == 0x80);
+
+    return value;
+  }
+
+  _rola(): void {
+    this.a = this._rol(this.a);
+    this._cycles += 2;
+  }
+
+  _rolm(addr: number, cycles: number): void {
+    let x = this._memory.readByte(addr);
+    x = this._rol(x);
+    this._memory.writeByte(addr, x);
+    this._cycles += cycles;
   }
 
   _immediate(): number {
