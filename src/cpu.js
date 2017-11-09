@@ -54,6 +54,7 @@ export default class CPU {
     this._dispatch[0x19] = () => this._ora(this._absoluteY(), 4);
     this._dispatch[0x1D] = () => this._ora(this._absoluteX(), 4);
     this._dispatch[0x1E] = () => this._aslm(this._absoluteX(), 7);
+    this._dispatch[0x20] = this._jsr.bind(this);
     this._dispatch[0x21] = () => this._and(this._indirectX(), 6);
     this._dispatch[0x24] = () => this._bit(this._zeroPage(), 3);
     this._dispatch[0x25] = () => this._and(this._zeroPage(), 3);
@@ -452,6 +453,27 @@ export default class CPU {
   _jmp(addr: number, cycles: number): void {
     this.ip = addr;
     this._cycles += cycles;
+  }
+
+  _jsr(): void {
+    if (this.sp < 2) {
+      this._halted = true;
+      return;
+    }
+
+    const addr = this._readWord(this.ip);
+
+    // NB jsr actually stores the address of the byte *before*
+    // the return address
+    this.ip = CPU._inc16(this.ip);
+
+    this._memory.writeByte(0x0100 | this.sp, (this.ip >> 8) & 0xFF);
+    this.sp--;
+    this._memory.writeByte(0x0100 | this.sp, this.ip & 0xFF);
+    this.sp--;
+
+    this.ip = addr;
+    this._cycles += 6;
   }
 
   _ora(addr: number, cycles: number): void {

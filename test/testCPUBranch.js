@@ -312,4 +312,34 @@ describe('CPU Branching', function() {
       assert.equal(this.cpu.ip, 0x5678);
     });
   });
+  describe('JSR', function() {
+    it('should jump to subroutine', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFF;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x20);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 6);
+      assert.equal(this.cpu.ip, 0x1234);
+      assert.equal(this.cpu.sp, 0xFD);
+      assert.equal(this.memory.readByte(0x01FE), 0x02);
+      assert.equal(this.memory.readByte(0x01FF), 0x10);
+    });
+    it('should halt on stack exception', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0x01;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x20);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.isHalted(), true);
+    });
+  });
 });
