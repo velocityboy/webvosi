@@ -342,4 +342,54 @@ describe('CPU Data Moves', function() {
       assert.equal(this.cpu.y, 0x02);
     });
   });
+  describe('PHA', function() {
+    it('should push a', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFF;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x48);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.sp, 0xFE);
+      assert.equal(this.memory.readByte(0x1FF), 0x5A);
+    });
+    it('should throw a stack exception', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0x00;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x48);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.isHalted(), true);
+    });
+  });
+  describe('PHP', function() {
+    it('should push flags', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0xFF;
+      this.cpu.flags = 0x5A;
+      this.memory.writeByte(0x1000, 0x08);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.sp, 0xFE);
+      assert.equal(this.memory.readByte(0x1FF), 0x5A);
+    });
+    it('should throw a stack exception', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.sp = 0x00;
+      this.cpu.flags = 0x5A;
+      this.memory.writeByte(0x1000, 0x08);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.isHalted(), true);
+    });
+  });
 });

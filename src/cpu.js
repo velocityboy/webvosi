@@ -42,6 +42,7 @@ export default class CPU {
     this._dispatch[0x01] = () => this._ora(this._indirectX(), 6);
     this._dispatch[0x05] = () => this._ora(this._zeroPage(), 3);
     this._dispatch[0x06] = () => this._aslm(this._zeroPage(), 5);
+    this._dispatch[0x08] = this._php.bind(this);
     this._dispatch[0x09] = () => this._ora(this._immediate(), 2);
     this._dispatch[0x0A] = () => this._asla();
     this._dispatch[0x0D] = () => this._ora(this._absolute(), 4);
@@ -69,6 +70,7 @@ export default class CPU {
     this._dispatch[0x41] = () => this._eor(this._indirectX(), 6);
     this._dispatch[0x45] = () => this._eor(this._zeroPage(), 3);
     this._dispatch[0x46] = () => this._lsrm(this._zeroPage(), 5);
+    this._dispatch[0x48] = this._pha.bind(this);
     this._dispatch[0x49] = () => this._eor(this._immediate(), 2);
     this._dispatch[0x4A] = this._lsra.bind(this);
     this._dispatch[0x4C] = () => this._jmp(this._absolute(), 3);
@@ -553,6 +555,28 @@ export default class CPU {
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
     this._cycles += cycles;
+  }
+
+  _pha(): void {
+    if (this.sp == 0) {
+      this._halted = true;
+      return;
+    }
+
+    this._memory.writeByte(0x0100 | this.sp, this.a);
+    this.sp--;
+    this._cycles += 3;
+  }
+
+  _php(): void {
+    if (this.sp == 0) {
+      this._halted = true;
+      return;
+    }
+
+    this._memory.writeByte(0x0100 | this.sp, this.flags);
+    this.sp--;
+    this._cycles += 3;
   }
 
   _immediate(): number {
