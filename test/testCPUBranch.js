@@ -284,4 +284,32 @@ describe('CPU Branching', function() {
       assert.equal(this.cpu.ip, 0x0FFF);
     });
   });
+  describe('JMP', function() {
+    it('should jmp directly', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x4C);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1234);
+    });
+    it('should jmp indirectly', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x6C);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+      this.memory.writeByte(0x1234, 0x78);
+      this.memory.writeByte(0x1235, 0x56);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 5);
+      assert.equal(this.cpu.ip, 0x5678);
+    });
+  });
 });

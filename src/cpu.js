@@ -68,6 +68,7 @@ export default class CPU {
     this._dispatch[0x41] = () => this._eor(this._indirectX(), 6);
     this._dispatch[0x45] = () => this._eor(this._zeroPage(), 3);
     this._dispatch[0x49] = () => this._eor(this._immediate(), 2);
+    this._dispatch[0x4C] = () => this._jmp(this._absolute(), 3);
     this._dispatch[0x4D] = () => this._eor(this._absolute(), 4);
     this._dispatch[0x50] = this._bvc.bind(this);
     this._dispatch[0x51] = () => this._eor(this._indirectY(), 5);
@@ -78,6 +79,7 @@ export default class CPU {
     this._dispatch[0x61] = () => this._adc(this._indirectX(), 6);
     this._dispatch[0x65] = () => this._adc(this._zeroPage(), 3);
     this._dispatch[0x69] = () => this._adc(this._immediate(), 2);
+    this._dispatch[0x6C] = () => this._jmp(this._indirect(), 5);
     this._dispatch[0x6D] = () => this._adc(this._absolute(), 4);
     this._dispatch[0x70] = this._bvs.bind(this);
     this._dispatch[0x71] = () => this._adc(this._indirectY(), 5);
@@ -447,6 +449,11 @@ export default class CPU {
     this._cycles += 2;
   }
 
+  _jmp(addr: number, cycles: number): void {
+    this.ip = addr;
+    this._cycles += cycles;
+  }
+
   _ora(addr: number, cycles: number): void {
     const m = this._memory.readByte(addr);
     this.a |= m;
@@ -488,6 +495,12 @@ export default class CPU {
   _absoluteY(): number {
     const addr = (this._readWord(this.ip) + this.y) & 0xFFFF;
     this.ip = CPU._inc16(this.ip, 2);
+    return addr;
+  }
+
+  _indirect(): number {
+    const addr = this._readWord(this._readWord(this.ip));
+    this.ip += 2;
     return addr;
   }
 
