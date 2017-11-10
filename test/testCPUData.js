@@ -748,7 +748,7 @@ describe('CPU Data Moves', function() {
   describe('TSX', function() {
     it('should transfer s to x', function() {
       this.cpu.ip = 0x1000;
-      this.cpu.s = 0x5A;
+      this.cpu.sp = 0x5A;
       this.cpu.flags = 0x00;
       this.memory.writeByte(0x1000, 0xBA);
 
@@ -761,7 +761,7 @@ describe('CPU Data Moves', function() {
     });
     it('should set the zero flag', function() {
       this.cpu.ip = 0x1000;
-      this.cpu.s = 0x00;
+      this.cpu.sp = 0x00;
       this.cpu.x = 0xFF;
       this.cpu.flags = 0x00;
       this.memory.writeByte(0x1000, 0xBA);
@@ -775,7 +775,7 @@ describe('CPU Data Moves', function() {
     });
     it('should set the negative flag', function() {
       this.cpu.ip = 0x1000;
-      this.cpu.s = 0x80;
+      this.cpu.sp = 0x80;
       this.cpu.x = 0xFF;
       this.cpu.flags = 0x00;
       this.memory.writeByte(0x1000, 0xBA);
@@ -786,6 +786,48 @@ describe('CPU Data Moves', function() {
       assert.equal(this.cpu.ip, 0x1001);
       assert.equal(this.cpu.flags, Flags.N);
       assert.equal(this.cpu.x, 0x80);
+    });
+  });
+  describe('TXA', function() {
+    it('should transfer x to a', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x5A;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x8A);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.a, 0x5A);
+    });
+    it('should set the zero flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x00;
+      this.cpu.a = 0xFF;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x8A);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.flags, Flags.Z);
+      assert.equal(this.cpu.a, 0x00);
+    });
+    it('should set the negative flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x80;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0x8A);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.flags, Flags.N);
+      assert.equal(this.cpu.a, 0x80);
     });
   });
 });

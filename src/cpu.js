@@ -123,6 +123,7 @@ export default class CPU {
     this._dispatch[0x85] = () => this._sta(this._zeroPage(), 3);
     this._dispatch[0x86] = () => this._stx(this._zeroPage(), 3);
     this._dispatch[0x88] = this._dey.bind(this);
+    this._dispatch[0x8A] = this._txa.bind(this);
     this._dispatch[0x8C] = () => this._sty(this._absolute(), 4);
     this._dispatch[0x8D] = () => this._sta(this._absolute(), 4);
     this._dispatch[0x8E] = () => this._stx(this._absolute(), 4);
@@ -813,9 +814,16 @@ export default class CPU {
   }
 
   _tsx(): void {
-    this.x = this.s;
+    this.x = this.sp;
     this._setClear(Flags.Z, this.x === 0);
     this._setClear(Flags.N, (this.x & 0x80) === 0x80);
+    this._cycles += 2;
+  }
+
+  _txa(): void {
+    this.a = this.x;
+    this._setClear(Flags.Z, this.a === 0);
+    this._setClear(Flags.N, (this.a & 0x80) === 0x80);
     this._cycles += 2;
   }
 
