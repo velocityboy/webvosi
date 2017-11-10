@@ -179,6 +179,14 @@ export default class CPU {
     this._dispatch[0xF8] = this._sed.bind(this);
     this._dispatch[0xFE] = () => this._inc(this._absoluteX(), 7);
 
+    this._dispatch[0xE5] = () => this._sbc(this._zeroPage(), 3);
+    this._dispatch[0xF5] = () => this._sbc(this._zeroPageX(), 4);
+    this._dispatch[0xED] = () => this._sbc(this._absolute(), 4);
+    this._dispatch[0xFD] = () => this._sbc(this._absoluteX(), 4);
+    this._dispatch[0xF9] = () => this._sbc(this._absoluteY(), 4);
+    this._dispatch[0xE1] = () => this._sbc(this._indirectX(), 6);
+    this._dispatch[0xF1] = () => this._sbc(this._indirectY(), 5);
+
 
 
 
