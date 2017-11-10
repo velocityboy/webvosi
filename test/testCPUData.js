@@ -579,4 +579,44 @@ describe('CPU Data Moves', function() {
       assert.equal(this.memory.readByte(0x1234), 0x5A);
     });
   });
+  describe('STX', function() {
+    it('should store in zero page', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x5A;
+      this.memory.writeByte(0x1000, 0x86);
+      this.memory.writeByte(0x1001, 0x80);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x0080), 0x5A);
+    });
+    it('should store in zero page Y', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x5A;
+      this.cpu.y = 0x10;
+      this.memory.writeByte(0x1000, 0x96);
+      this.memory.writeByte(0x1001, 0x70);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x0080), 0x5A);
+    });
+    it('should store at absolute address', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x5A;
+      this.memory.writeByte(0x1000, 0x8E);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.ip, 0x1003);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+  });
 });

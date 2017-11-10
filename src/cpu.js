@@ -119,13 +119,16 @@ export default class CPU {
     this._dispatch[0x7E] = () => this._rorm(this._absoluteX(), 7);
 
     this._dispatch[0x81] = () => this._sta(this._indirectX(), 6);
+    this._dispatch[0x86] = () => this._stx(this._zeroPage(), 3);
     this._dispatch[0x85] = () => this._sta(this._zeroPage(), 3);
     this._dispatch[0x88] = this._dey.bind(this);
     this._dispatch[0x8D] = () => this._sta(this._absolute(), 4);
+    this._dispatch[0x8E] = () => this._stx(this._absolute(), 4);
 
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0x91] = () => this._sta(this._indirectY(), 6);
     this._dispatch[0x95] = () => this._sta(this._zeroPageX(), 4);
+    this._dispatch[0x96] = () => this._stx(this._zeroPageY(), 4);
     this._dispatch[0x99] = () => this._sta(this._absoluteY(), 5);
     this._dispatch[0x9D] = () => this._sta(this._absoluteX(), 5);
 
@@ -192,7 +195,6 @@ export default class CPU {
     this._dispatch[0xF9] = () => this._sbc(this._absoluteY(), 4);
     this._dispatch[0xFD] = () => this._sbc(this._absoluteX(), 4);
     this._dispatch[0xFE] = () => this._inc(this._absoluteX(), 7);
-
 
 
 
@@ -778,6 +780,11 @@ export default class CPU {
 
   _sta(address: number, cycles: number): void {
     this._memory.writeByte(address, this.a);
+    this._cycles += cycles;
+  }
+
+  _stx(address: number, cycles: number): void {
+    this._memory.writeByte(address, this.x);
     this._cycles += cycles;
   }
 
