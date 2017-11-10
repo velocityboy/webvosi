@@ -240,6 +240,7 @@ export default class CPU {
   }
 
   _invalidInstruction(): void {
+    console.log('invalid instruction halt');
     this._halted = true;
   }
 
@@ -376,6 +377,7 @@ export default class CPU {
     const vector = this._readWord(CPU.BRK);
 
     if (this.sp <= 2) {
+      console.log('brk stack overflow halt');
       this._halted = true;
       return;
     }
@@ -543,6 +545,7 @@ export default class CPU {
 
   _jsr(): void {
     if (this.sp < 2) {
+      console.log('jsr stack overflow halt');
       this._halted = true;
       return;
     }
@@ -553,9 +556,9 @@ export default class CPU {
     // the return address
     this.ip = CPU._inc16(this.ip);
 
-    this._memory.writeByte(0x0100 | this.sp, (this.ip >> 8) & 0xFF);
+    this._memory.writeByte(CPU.STACK_BASE | this.sp, (this.ip >> 8) & 0xFF);
     this.sp--;
-    this._memory.writeByte(0x0100 | this.sp, this.ip & 0xFF);
+    this._memory.writeByte(CPU.STACK_BASE | this.sp, this.ip & 0xFF);
     this.sp--;
 
     this.ip = addr;
@@ -618,33 +621,36 @@ export default class CPU {
 
   _pha(): void {
     if (this.sp == 0) {
+      console.log('pha stack overflow halt');
       this._halted = true;
       return;
     }
 
-    this._memory.writeByte(0x0100 | this.sp, this.a);
+    this._memory.writeByte(CPU.STACK_BASE | this.sp, this.a);
     this.sp--;
     this._cycles += 3;
   }
 
   _php(): void {
     if (this.sp == 0) {
+      console.log('php stack overflow halt');
       this._halted = true;
       return;
     }
 
-    this._memory.writeByte(0x0100 | this.sp, this.flags);
+    this._memory.writeByte(CPU.STACK_BASE | this.sp, this.flags);
     this.sp--;
     this._cycles += 3;
   }
 
   _pla(): void {
     if (this.sp == 0xFF) {
+      console.log('pla stack underflow halt');
       this._halted = true;
       return;
     }
     this.sp++;
-    this.a = this._memory.readByte(0x0100 | this.sp);
+    this.a = this._memory.readByte(CPU.STACK_BASE | this.sp);
 
     this._setClear(Flags.Z, this.a === 0);
     this._setClear(Flags.N, (this.a & 0x80) === 0x80);
@@ -654,11 +660,12 @@ export default class CPU {
 
   _plp(): void {
     if (this.sp == 0xFF) {
+      console.log('plp stack underflow halt');
       this._halted = true;
       return;
     }
     this.sp++;
-    this.flags = this._memory.readByte(0x0100 | this.sp);
+    this.flags = this._memory.readByte(CPU.STACK_BASE | this.sp);
 
     this._cycles += 4;
   }
@@ -719,6 +726,7 @@ export default class CPU {
 
   _rti(): void {
     if (this.sp >= 0xFD) {
+      console.log('rti stack underflow halt');
       this._halted = true;
       return;
     }
@@ -726,11 +734,11 @@ export default class CPU {
     this.flags &= Flags.ALWAYS;
 
     this.sp++;
-    this.flags |= (this._memory.readByte(this.sp) & ~Flags.ALWAYS);
+    this.flags |= (this._memory.readByte(CPU.STACK_BASE | this.sp) & ~Flags.ALWAYS);
     this.sp++;
-    const low = this._memory.readByte(this.sp);
+    const low = this._memory.readByte(CPU.STACK_BASE | this.sp);
     this.sp++;
-    const high = this._memory.readByte(this.sp);
+    const high = this._memory.readByte(CPU.STACK_BASE | this.sp);
 
     this.ip = (high << 8) | low;
     this._cycles += 6;
@@ -738,14 +746,15 @@ export default class CPU {
 
   _rts(): void {
     if (this.sp >= 0xFE) {
+      console.log('brk stack underflow halt');
       this._halted = true;
       return;
     }
 
     this.sp++;
-    const low = this._memory.readByte(this.sp);
+    const low = this._memory.readByte(CPU.STACK_BASE | this.sp);
     this.sp++;
-    const high = this._memory.readByte(this.sp);
+    const high = this._memory.readByte(CPU.STACK_BASE | this.sp);
 
     this.ip = CPU._inc16((high << 8) | low);
     this._cycles += 6;

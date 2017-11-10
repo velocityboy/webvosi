@@ -17,6 +17,10 @@ export default class Memory {
   }
 
   writeByte(address: number, data: number): void {
+    if (address >= 0xD000 && address < 0xD800) {
+      console.log(`write ${data} to ${address}`);
+    }
+
     this._memory[address] = data;
   }
 }

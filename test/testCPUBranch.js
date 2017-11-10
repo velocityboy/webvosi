@@ -358,8 +358,8 @@ describe('CPU Branching', function() {
       this.cpu.ip = 0x1000;
       this.cpu.sp = 0xFD;
       this.cpu.flags = 0x00;
-      this.memory.writeByte(0xFE, 0x33);
-      this.memory.writeByte(0xFF, 0x12);
+      this.memory.writeByte(0x01FE, 0x33);
+      this.memory.writeByte(0x01FF, 0x12);
       this.memory.writeByte(0x1000, 0x60);
 
       const startCycles = this.cpu.cycles();
@@ -372,9 +372,9 @@ describe('CPU Branching', function() {
       this.cpu.ip = 0x1000;
       this.cpu.sp = 0xFE;
       this.cpu.flags = 0x00;
-      this.memory.writeByte(0xFD, 0xFF);
-      this.memory.writeByte(0xFE, 0x34);
-      this.memory.writeByte(0xFF, 0x12);
+      this.memory.writeByte(0x01FD, 0xFF);
+      this.memory.writeByte(0x01FE, 0x34);
+      this.memory.writeByte(0x01FF, 0x12);
       this.memory.writeByte(0x1000, 0x60);
 
       const startCycles = this.cpu.cycles();
@@ -387,9 +387,9 @@ describe('CPU Branching', function() {
       this.cpu.ip = 0x1000;
       this.cpu.sp = 0xFC;
       this.cpu.flags = 0x00;
-      this.memory.writeByte(0xFD, 0xFF);
-      this.memory.writeByte(0xFE, 0x34);
-      this.memory.writeByte(0xFF, 0x12);
+      this.memory.writeByte(0x01FD, 0xFF);
+      this.memory.writeByte(0x01FE, 0x34);
+      this.memory.writeByte(0x01FF, 0x12);
       this.memory.writeByte(0x1000, 0x40);
 
       const startCycles = this.cpu.cycles();
@@ -402,9 +402,9 @@ describe('CPU Branching', function() {
       this.cpu.ip = 0x1000;
       this.cpu.sp = 0xFD;
       this.cpu.flags = 0x00;
-      this.memory.writeByte(0xFD, 0xFF);
-      this.memory.writeByte(0xFE, 0x34);
-      this.memory.writeByte(0xFF, 0x12);
+      this.memory.writeByte(0x01FD, 0xFF);
+      this.memory.writeByte(0x01FE, 0x34);
+      this.memory.writeByte(0x01FF, 0x12);
       this.memory.writeByte(0x1000, 0x40);
 
       const startCycles = this.cpu.cycles();
