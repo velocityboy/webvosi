@@ -73,6 +73,7 @@ export default class CPU {
     this._dispatch[0x31] = () => this._and(this._indirectY(), 5);
     this._dispatch[0x35] = () => this._and(this._zeroPageX(), 4);
     this._dispatch[0x36] = () => this._rolm(this._zeroPageX(), 6);
+    this._dispatch[0x38] = this._sec.bind(this);
     this._dispatch[0x39] = () => this._and(this._absoluteY(), 4);
     this._dispatch[0x3D] = () => this._and(this._absoluteX(), 4);
     this._dispatch[0x3E] = () => this._rolm(this._absoluteX(), 7);
@@ -112,6 +113,7 @@ export default class CPU {
     this._dispatch[0x71] = () => this._adc(this._indirectY(), 5);
     this._dispatch[0x75] = () => this._adc(this._zeroPageX(), 4);
     this._dispatch[0x76] = () => this._rorm(this._zeroPageX(), 6);
+    this._dispatch[0x78] = this._sei.bind(this);
     this._dispatch[0x79] = () => this._adc(this._absoluteY(), 4);
     this._dispatch[0x7D] = () => this._adc(this._absoluteX(), 4);
     this._dispatch[0x7E] = () => this._rorm(this._absoluteX(), 7);
@@ -174,6 +176,7 @@ export default class CPU {
 
     this._dispatch[0xF0] = this._beq.bind(this);
     this._dispatch[0xF6] = () => this._inc(this._zeroPageX(), 6);
+    this._dispatch[0xF8] = this._sed.bind(this);
     this._dispatch[0xFE] = () => this._inc(this._absoluteX(), 7);
 
 
@@ -741,6 +744,21 @@ export default class CPU {
     this.a = result & 0xFF;
 
     this._cycles += cycles;
+  }
+
+  _sec(): void {
+    this.flags |= Flags.C;
+    this._cycles += 2;
+  }
+
+  _sed(): void {
+    this.flags |= Flags.D;
+    this._cycles += 2;
+  }
+
+  _sei(): void {
+    this.flags |= Flags.DI;
+    this._cycles += 2;
   }
 
   _immediate(): number {
