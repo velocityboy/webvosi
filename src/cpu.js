@@ -119,14 +119,17 @@ export default class CPU {
     this._dispatch[0x7E] = () => this._rorm(this._absoluteX(), 7);
 
     this._dispatch[0x81] = () => this._sta(this._indirectX(), 6);
-    this._dispatch[0x86] = () => this._stx(this._zeroPage(), 3);
+    this._dispatch[0x84] = () => this._sty(this._zeroPage(), 3);
     this._dispatch[0x85] = () => this._sta(this._zeroPage(), 3);
+    this._dispatch[0x86] = () => this._stx(this._zeroPage(), 3);
     this._dispatch[0x88] = this._dey.bind(this);
+    this._dispatch[0x8C] = () => this._sty(this._absolute(), 4);
     this._dispatch[0x8D] = () => this._sta(this._absolute(), 4);
     this._dispatch[0x8E] = () => this._stx(this._absolute(), 4);
 
     this._dispatch[0x90] = this._bcc.bind(this);
     this._dispatch[0x91] = () => this._sta(this._indirectY(), 6);
+    this._dispatch[0x94] = () => this._sty(this._zeroPageX(), 4);
     this._dispatch[0x95] = () => this._sta(this._zeroPageX(), 4);
     this._dispatch[0x96] = () => this._stx(this._zeroPageY(), 4);
     this._dispatch[0x99] = () => this._sta(this._absoluteY(), 5);
@@ -139,6 +142,7 @@ export default class CPU {
     this._dispatch[0xA5] = () => this._lda(this._zeroPage(), 3);
     this._dispatch[0xA6] = () => this._ldx(this._zeroPage(), 3);
     this._dispatch[0xA9] = () => this._lda(this._immediate(), 2);
+    this._dispatch[0xAA] = this._tax.bind(this);
     this._dispatch[0xAC] = () => this._ldy(this._absolute(), 4);
     this._dispatch[0xAD] = () => this._lda(this._absolute(), 4);
     this._dispatch[0xAE] = () => this._ldx(this._absolute(), 4);
@@ -195,7 +199,6 @@ export default class CPU {
     this._dispatch[0xF9] = () => this._sbc(this._absoluteY(), 4);
     this._dispatch[0xFD] = () => this._sbc(this._absoluteX(), 4);
     this._dispatch[0xFE] = () => this._inc(this._absoluteX(), 7);
-
 
 
 
@@ -786,6 +789,18 @@ export default class CPU {
   _stx(address: number, cycles: number): void {
     this._memory.writeByte(address, this.x);
     this._cycles += cycles;
+  }
+
+  _sty(address: number, cycles: number): void {
+    this._memory.writeByte(address, this.y);
+    this._cycles += cycles;
+  }
+
+  _tax(): void {
+    this.x = this.a;
+    this._setClear(Flags.Z, this.x === 0);
+    this._setClear(Flags.N, (this.x & 0x80) === 0x80);
+    this._cycles += 2;
   }
 
   _immediate(): number {

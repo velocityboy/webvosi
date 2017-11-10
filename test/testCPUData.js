@@ -619,4 +619,87 @@ describe('CPU Data Moves', function() {
       assert.equal(this.memory.readByte(0x1234), 0x5A);
     });
   });
+  describe('STY', function() {
+    it('should store in zero page', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.y = 0x5A;
+      this.memory.writeByte(0x1000, 0x84);
+      this.memory.writeByte(0x1001, 0x80);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x0080), 0x5A);
+    });
+    it('should store in zero page X', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.x = 0x10;
+      this.cpu.y = 0x5A;
+      this.memory.writeByte(0x1000, 0x94);
+      this.memory.writeByte(0x1001, 0x70);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x0080), 0x5A);
+    });
+    it('should store at absolute address', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.y = 0x5A;
+      this.memory.writeByte(0x1000, 0x8C);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.ip, 0x1003);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+  });
+  describe('TAX', function() {
+    it('should transfer a to x', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0xAA);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.flags, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.x, 0x5A);
+    });
+    it('should set the zero flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x00;
+      this.cpu.x = 0xFF;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0xAA);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.flags, Flags.Z);
+      assert.equal(this.cpu.x, 0x00);
+    });
+    it('should set the negative flag', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x80;
+      this.cpu.x = 0xFF;
+      this.cpu.flags = 0x00;
+      this.memory.writeByte(0x1000, 0xAA);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.ip, 0x1001);
+      assert.equal(this.cpu.flags, Flags.N);
+      assert.equal(this.cpu.x, 0x80);
+    });
+  });
 });
