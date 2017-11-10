@@ -481,4 +481,102 @@ describe('CPU Data Moves', function() {
       assert.equal(this.cpu.isHalted(), true);
     });
   });
+  describe('STA', function() {
+    it('should store in zero page', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x85);
+      this.memory.writeByte(0x1001, 0x80);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 3);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x0080), 0x5A);
+    });
+    it('should store in zero page X', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.cpu.x = 0x10;
+      this.memory.writeByte(0x1000, 0x95);
+      this.memory.writeByte(0x1001, 0x80);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x0090), 0x5A);
+    });
+    it('should store at absolute address', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.memory.writeByte(0x1000, 0x8D);
+      this.memory.writeByte(0x1001, 0x34);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 4);
+      assert.equal(this.cpu.ip, 0x1003);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+    it('should store at absolute address+X', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.cpu.x = 0x10;
+      this.memory.writeByte(0x1000, 0x9D);
+      this.memory.writeByte(0x1001, 0x24);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 5);
+      assert.equal(this.cpu.ip, 0x1003);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+    it('should store at absolute address+Y', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.cpu.y = 0x10;
+      this.memory.writeByte(0x1000, 0x99);
+      this.memory.writeByte(0x1001, 0x24);
+      this.memory.writeByte(0x1002, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 5);
+      assert.equal(this.cpu.ip, 0x1003);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+    it('should store at indirect X', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.cpu.x = 0x10;
+      this.memory.writeByte(0x1000, 0x81);
+      this.memory.writeByte(0x1001, 0x20);
+      this.memory.writeByte(0x0030, 0x34);
+      this.memory.writeByte(0x0031, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 6);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+    it('should store at indirect Y', function() {
+      this.cpu.ip = 0x1000;
+      this.cpu.a = 0x5A;
+      this.cpu.y = 0x10;
+      this.memory.writeByte(0x1000, 0x91);
+      this.memory.writeByte(0x1001, 0x20);
+      this.memory.writeByte(0x0020, 0x24);
+      this.memory.writeByte(0x0021, 0x12);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 6);
+      assert.equal(this.cpu.ip, 0x1002);
+      assert.equal(this.memory.readByte(0x1234), 0x5A);
+    });
+  });
 });
