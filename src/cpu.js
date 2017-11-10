@@ -167,6 +167,7 @@ export default class CPU {
     this._dispatch[0xE4] = () => this._cpx(this._zeroPage(), 3);
     this._dispatch[0xE6] = () => this._inc(this._zeroPage(), 5);
     this._dispatch[0xE8] = this._inx.bind(this);
+    this._dispatch[0xE9] = () => this._sbc(this._immediate(), 2);
     this._dispatch[0xEA] = this._nop.bind(this);
     this._dispatch[0xEC] = () => this._cpx(this._absolute(), 4);
     this._dispatch[0xEE] = () => this._inc(this._absolute(), 6);
@@ -720,6 +721,26 @@ export default class CPU {
 
     this.ip = CPU._inc16((high << 8) | low);
     this._cycles += 6;
+  }
+
+  _sbc(addr: number, cycles: number): void {
+    const m = this._memory.readByte(addr);
+    let result = this.a - m;
+    if ((this.flags & Flags.C) == 0) {
+      result--;
+    }
+
+    this._setClear(Flags.V,
+      (((this.a ^ m)) & (this.a ^ result) & 0x80) != 0
+    );
+
+    this._setClear(Flags.Z, (result & 0xFF) === 0);
+    this._setClear(Flags.N, (result & 0x80) === 0x80);
+    this._setClear(Flags.C, (result & 0x100) === 0);
+
+    this.a = result & 0xFF;
+
+    this._cycles += cycles;
   }
 
   _immediate(): number {
