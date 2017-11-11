@@ -151,20 +151,18 @@ export default class Keyboard {
     const key = event.key;
     const entry = keymap.get(key);
 
-    console.log('key ' + key);
     if (entry == null) {
-      console.log('no entry')
       return;
     }
 
     if (event.type === 'keydown') {
-      if (event.isMeta) {
+      if (entry.isMeta) {
         this._downMeta.add(key);
       } else {
         this._downKey = key;
       }
     } else {
-      if (event.isMeta) {
+      if (entry.isMeta) {
         this._downMeta.delete(key);
       } else if (key === this._downKey) {
         this._downKey = null;
