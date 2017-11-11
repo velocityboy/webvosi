@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "babel src/ -d out/; webpack --config webpack.config.js",
+    "build": "babel src/ -d out/ -s out/; webpack --config webpack.config.js",
     "test": "mocha"
   },
   "repository": "https://github.com/velocityboy/webvosi.git",
@@ -22,6 +22,7 @@
     "flow": "^0.2.3",
     "flow-bin": "^0.58.0",
     "mocha": "^4.0.1",
+    "source-map-loader": "^0.2.3",
     "webpack": "^3.8.1"
   },
   "dependencies": {

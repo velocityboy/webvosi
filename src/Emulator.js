@@ -3,6 +3,7 @@
 import type {EmulatorCallbacks} from './EmulatorCallbacks';
 
 import CPU from './CPU';
+import Keyboard from './Keyboard';
 import Memory from './Memory';
 
 export default class Emulator {
@@ -13,9 +14,11 @@ export default class Emulator {
   _cpu: CPU;
   _memory: Memory;
   _callbacks: EmulatorCallbacks;
+  _keyboard: Keyboard;
 
   constructor(callbacks: EmulatorCallbacks) {
-    this._memory = new Memory();
+    this._keyboard = new Keyboard();
+    this._memory = new Memory(this._keyboard);
     this._cpu = new CPU(this._memory);
     this._callbacks = callbacks;
   }
@@ -65,7 +68,7 @@ export default class Emulator {
     const end = performance.now();
     const delta = end - start;
     const cycles = this._cpu.cycles() - startCycles;
-    console.log(`ran for ${delta} ms [${cycles} cycles]`);
+    // console.log(`ran for ${delta} ms [${cycles} cycles]`);
 
     if (this._cpu.isHalted()) {
       console.log('CPU halted; stopping.');

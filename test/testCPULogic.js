@@ -50,6 +50,21 @@ describe('CPU Logic', function() {
       assert.equal(this.cpu.ip, 0x1001);
     });
 
+    it('should set the zero flag when hi bit shifted out', function() {
+      this.cpu.sp = 0xFF;
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x80;
+      this.memory.writeByte(0x1000, 0x0A);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.flags, Flags.C | Flags.Z);
+      assert.equal(this.cpu.a, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+    });
+
     it('should set the negative flag on hi bit', function() {
       this.cpu.sp = 0xFF;
       this.cpu.ip = 0x1000;
@@ -913,6 +928,20 @@ describe('CPU Logic', function() {
       this.cpu.step();
       assert.equal(this.cpu.cycles() - startCycles, 2);
       assert.equal(this.cpu.flags, Flags.Z);
+      assert.equal(this.cpu.a, 0x00);
+      assert.equal(this.cpu.ip, 0x1001);
+    });
+    it('should set the zero flag when hi bit shifted out', function() {
+      this.cpu.sp = 0xFF;
+      this.cpu.ip = 0x1000;
+      this.cpu.flags = 0x00;
+      this.cpu.a = 0x80;
+      this.memory.writeByte(0x1000, 0x2A);
+
+      const startCycles = this.cpu.cycles();
+      this.cpu.step();
+      assert.equal(this.cpu.cycles() - startCycles, 2);
+      assert.equal(this.cpu.flags, Flags.Z | Flags.C);
       assert.equal(this.cpu.a, 0x00);
       assert.equal(this.cpu.ip, 0x1001);
     });

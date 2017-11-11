@@ -239,6 +239,19 @@ export default class CPU {
     return this._cycles;
   }
 
+  flagString(): string {
+    return (
+      (((this.flags & Flags.N) !== 0) ? 'N' : '-') +
+      (((this.flags & Flags.V) !== 0) ? 'V' : '-') +
+      'X' +
+      (((this.flags & Flags.B) !== 0) ? 'B' : '-') +
+      (((this.flags & Flags.D) !== 0) ? 'D' : '-') +
+      (((this.flags & Flags.DI) !== 0) ? 'I' : '-') +
+      (((this.flags & Flags.Z) !== 0) ? 'Z' : '-') +
+      (((this.flags & Flags.C) !== 0) ? 'C' : '-')
+    );
+  }
+
   _invalidInstruction(): void {
     console.log('invalid instruction halt');
     this._halted = true;
@@ -268,7 +281,7 @@ export default class CPU {
 
   _asl(value: number): number {
     value = value << 1;
-    this._setClear(Flags.Z, value === 0);
+    this._setClear(Flags.Z, (value & 0xff) === 0);
     this._setClear(Flags.N, (value & 0x80) === 0x80);
     this._setClear(Flags.C, (value & 0x100) === 0x100);
 
@@ -679,7 +692,7 @@ export default class CPU {
 
     this._setClear(Flags.C, (value & 0x0100) === 0x0100);
     value &= 0xFF;
-    this._setClear(Flags.Z, value === 0);
+    this._setClear(Flags.Z, (value & 0xff) === 0);
     this._setClear(Flags.N, (value & 0x80) == 0x80);
 
     return value;
