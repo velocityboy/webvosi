@@ -1,5 +1,7 @@
 // @flow
 
+import type {EmulatorCallbacks} from './EmulatorCallbacks';
+
 import CPU from './CPU';
 import Memory from './Memory';
 
@@ -10,10 +12,16 @@ export default class Emulator {
 
   _cpu: CPU;
   _memory: Memory;
+  _callbacks: EmulatorCallbacks;
 
-  constructor() {
+  constructor(callbacks: EmulatorCallbacks) {
     this._memory = new Memory();
     this._cpu = new CPU(this._memory);
+    this._callbacks = callbacks;
+  }
+
+  getVRAM(): Uint8Array {
+    return this._memory.getVRAM();
   }
 
   async load() {
@@ -48,6 +56,8 @@ export default class Emulator {
     const startCycles = this._cpu.cycles();
     const cycleTarget = startCycles + Emulator.CLOCKS_PER_TICK;
 
+    this._memory.clearScreenWrites();
+
     do {
       this._cpu.step();
     } while (!this._cpu.isHalted() && this._cpu.cycles() < cycleTarget);
@@ -60,6 +70,10 @@ export default class Emulator {
     if (this._cpu.isHalted()) {
       console.log('CPU halted; stopping.');
       return;
+    }
+
+    if (this._memory.screenWrites()) {
+      this._callbacks.screenChanged();
     }
 
     const schedule = Math.max(1, Emulator.TICK_MS - delta);
