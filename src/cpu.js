@@ -281,7 +281,7 @@ export default class CPU {
 
   _asl(value: number): number {
     value = value << 1;
-    this._setClear(Flags.Z, (value & 0xff) === 0);
+    this._setClear(Flags.Z, (value & 0xFF) === 0);
     this._setClear(Flags.N, (value & 0x80) === 0x80);
     this._setClear(Flags.C, (value & 0x100) === 0x100);
 
@@ -301,9 +301,8 @@ export default class CPU {
   }
 
   _bcc(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.C) === 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -314,9 +313,8 @@ export default class CPU {
   }
 
   _bcs(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.C) !== 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -327,9 +325,8 @@ export default class CPU {
   }
 
   _beq(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.Z) !== 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -347,9 +344,8 @@ export default class CPU {
   }
 
   _bmi(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.N) !== 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -360,9 +356,8 @@ export default class CPU {
   }
 
   _bne(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.Z) === 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -373,9 +368,8 @@ export default class CPU {
   }
 
   _bpl(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.N) === 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -409,9 +403,8 @@ export default class CPU {
   }
 
   _bvc(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.V) === 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -422,9 +415,8 @@ export default class CPU {
   }
 
   _bvs(): void {
-    const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
-
     if ((this.flags & Flags.V) !== 0) {
+      const offset = CPU._byteToSigned(this._memory.readByte(this.ip));
       this.ip = (this.ip + 1 + offset) & 0xFFFF;
       this._cycles += 3;
       return;
@@ -657,7 +649,7 @@ export default class CPU {
   }
 
   _pla(): void {
-    if (this.sp == 0xFF) {
+    if (this.sp === 0xFF) {
       console.log('pla stack underflow halt');
       this._halted = true;
       return;
@@ -672,7 +664,7 @@ export default class CPU {
   }
 
   _plp(): void {
-    if (this.sp == 0xFF) {
+    if (this.sp === 0xFF) {
       console.log('plp stack underflow halt');
       this._halted = true;
       return;
@@ -686,14 +678,14 @@ export default class CPU {
   _rol(value: number): number {
     value = value << 1;
 
-    if ((this.flags & Flags.C) != 0) {
+    if ((this.flags & Flags.C) !== 0) {
       value |= 0x01;
     }
 
     this._setClear(Flags.C, (value & 0x0100) === 0x0100);
     value &= 0xFF;
-    this._setClear(Flags.Z, (value & 0xff) === 0);
-    this._setClear(Flags.N, (value & 0x80) == 0x80);
+    this._setClear(Flags.Z, value === 0);
+    this._setClear(Flags.N, (value & 0x80) === 0x80);
 
     return value;
   }
@@ -714,13 +706,13 @@ export default class CPU {
     const oldValue = value;
     value = value >> 1;
 
-    if ((this.flags & Flags.C) != 0) {
+    if ((this.flags & Flags.C) !== 0) {
       value |= 0x80;
     }
 
-    this._setClear(Flags.C, (oldValue & 0x01) == 0x01);
+    this._setClear(Flags.C, (oldValue & 0x01) === 0x01);
     this._setClear(Flags.Z, value === 0);
-    this._setClear(Flags.N, (value & 0x80) == 0x80);
+    this._setClear(Flags.N, (value & 0x80) === 0x80);
 
     return value;
   }
